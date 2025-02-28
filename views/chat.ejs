@@ -30,3 +30,10 @@
     <ul id="messages"></ul>
 </body>
 </html>
+
+
+<ul>
+    <% data.forEach(function(res) { %>
+    <li><%= res.sender %> : <%= res.text %></li>
+    <% }); %>
+</ul>
