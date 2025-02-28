@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
+var msg = require('../controller/MsgController');
 
-router.get('/', (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    res.render('chat', { username: req.session.username });
-});
+router.get('/',msg.get_msg);
 
 module.exports = router;
