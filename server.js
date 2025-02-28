@@ -4,7 +4,8 @@ const socketIo = require('socket.io');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
+const authRoutes = require('./routes/auth');
+const chatRoutes = require('./routes/chat');
 const User = require('./models/User');
 const Message = require('./models/Message');
 
@@ -27,43 +28,11 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// Store connected users
 const users = {};
 
-// Routes
-app.get('/', (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    res.render('chat', { username: req.session.username });
-});
+app.use('/', authRoutes);
+app.use('/chat', chatRoutes);
 
-app.get('/login', (req, res) => {
-    res.render('login');
-});
-
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (user && await bcrypt.compare(password, user.password)) {
-        req.session.userId = user._id;
-        req.session.username = user.username;
-        res.redirect('/');
-    } else {
-        res.send('Invalid credentials');
-    }
-});
-
-app.get('/register', (req, res) => {
-    res.render('register');
-});
-
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await new User({ username, password: hashedPassword }).save();
-    res.redirect('/login');
-});
-
-// WebSocket Logic
 io.on('connection', (socket) => {
     console.log('A user connected');
 
